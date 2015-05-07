@@ -5,7 +5,7 @@
 
 VERSION = '0.4'
 
-# Colors, RGBA hex
+# Colors, RGBA hex (alpha works if you'd like transparent grid/origin)
 CBG     = 0x000000ff # black
 CFG     = 0xffffffff # white
 CGRID   = 0xff0000ff # red
@@ -151,7 +151,7 @@ end
 # Draw grid
 def draw_grid(image, overview)
   draw_loop(overview) do |x, y, ix, iy|
-    image.rect(ix*XO, iy*YO, (ix+1)*XO, (iy+1)*YO, CGRID)
+    image.rect(ix*XO, iy*YO, (ix+1)*XO-1, (iy+1)*YO-1, CGRID)
   end
 end
 
@@ -159,7 +159,7 @@ end
 def draw_origin(image, overview)
   draw_loop(overview) do |x, y, ix, iy|
     next unless x == 0 && y == 0
-    image.rect(ix*XO+1, iy*YO+1, (ix+1)*XO-1, (iy+1)*YO-1, CORIGIN)
+    image.rect(ix*XO+1, iy*YO+1, (ix+1)*XO-2, (iy+1)*YO-2, CORIGIN)
   end
 end
 
