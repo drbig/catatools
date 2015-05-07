@@ -3,7 +3,7 @@
 #
 # See LICENSE.txt for licensing information.
 
-VERSION = '0.4'
+VERSION = '0.6'
 
 # Colors, RGBA hex (alpha works if you'd like transparent grid/origin)
 CBG     = 0x000000ff # black
@@ -166,45 +166,47 @@ end
 ## Main
 
 if __FILE__ == $0
-  require 'optparse'
-
-  op = OptionParser.new do |o|
-    o.banner = "Usage:\t#{$PROGRAM_NAME} [option...] save_path name.png\n\tVersion: #{VERSION}\n\n"
-    o.on('-h', '--help', 'Display this message') { puts o; exit }
-    o.on('-v', '--verbose', 'Enable debug output') { @conf[:verbose] = true }
-    o.on('-x', '--mapx MAPX', Integer, 'Set overmap width (MAPX)') {|a| @conf[:mapx] = a }
-    o.on('-y', '--mapy MAPY', Integer, 'Set overmap height (MAPY)') {|a| @conf[:mapy] = a }
-    o.on('-l', '--level L', Integer, 'Set map layer (L)') {|a| @conf[:level] = a }
-    o.on('-s', '--scale INT', Integer, 'Set pixel scale') {|a| @conf[:scale] = a }
-    o.on('-g', '--[no-]grid', 'Draw grid') {|a| @conf[:grid] = a }
-    o.on('-o', '--[no-]origin', 'Draw origin') {|a| @conf[:origin] = a}
-  end
-  op.parse!
-
-  unless ARGV.length == 2
-    puts op
-    exit(2)
-  end
-
-  PATH = ARGV.shift
-  OUTPUT = ARGV.shift
-
-  # x,y scale/offset consts
-  XO = @conf[:mapx] * @conf[:scale]
-  YO = @conf[:mapy] * @conf[:scale]
-
-  require 'chunky_png'
-
   begin
+    require 'optparse'
+
+    op = OptionParser.new do |o|
+      o.banner = "Usage:\t#{$PROGRAM_NAME} [option...] save_path name.png\n\tVersion: #{VERSION}\n\n"
+      o.on('-h', '--help', 'Display this message') { puts o; exit }
+      o.on('-v', '--verbose', 'Enable debug output') { @conf[:verbose] = true }
+      o.on('-x', '--mapx MAPX', Integer, 'Set overmap width (MAPX)') {|a| @conf[:mapx] = a }
+      o.on('-y', '--mapy MAPY', Integer, 'Set overmap height (MAPY)') {|a| @conf[:mapy] = a }
+      o.on('-l', '--level L', Integer, 'Set map layer (L)') {|a| @conf[:level] = a }
+      o.on('-s', '--scale INT', Integer, 'Set pixel scale') {|a| @conf[:scale] = a }
+      o.on('-g', '--[no-]grid', 'Draw grid') {|a| @conf[:grid] = a }
+      o.on('-o', '--[no-]origin', 'Draw origin') {|a| @conf[:origin] = a}
+    end
+    op.parse!
+
+    unless ARGV.length == 2
+      puts op
+      exit(2)
+    end
+
+    PATH = ARGV.shift
+    OUTPUT = ARGV.shift
+
+    # x,y scale/offset consts
+    XO = @conf[:mapx] * @conf[:scale]
+    YO = @conf[:mapy] * @conf[:scale]
+
     puts 'Processing... (this may take some time)'
 
     verbose { 'Gathering seen data...' }
     overview = overview(PATH)
     verbose { overview.to_s }
 
-    image = ChunkyPNG::Image.new(overview.width * @conf[:mapx] * @conf[:scale],
-                                 overview.height * @conf[:mapy] * @conf[:scale],
-                                 CBG)
+    unless overview.any?
+      puts 'Didn\'t find any seen data.'
+      exit(2)
+    end
+
+    require 'chunky_png'
+    image = ChunkyPNG::Image.new(overview.width * XO, overview.height * YO, CBG)
 
     verbose { 'Drawing seen data...' }
     draw_seen(image, overview)
