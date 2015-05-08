@@ -24,4 +24,16 @@ class TestOvermapper < Minitest::Test
       assert_equal output, parse_seen_data(input)
     end
   end
+
+  def test_parse_note
+    [
+      ['<:W;AUTO: goes up', Note.new('AUTO: goes up', :w, '<')],
+      ['>:W;AUTO: goes down', Note.new('AUTO: goes down', :w, '>')],
+      ['GOOD STUFF HERE!', Note.new('GOOD STUFF HERE!')],
+      ['R;!:TANK DRONE', Note.new('TANK DRONE', :r, '!')],
+      ['C;H:Base 1', Note.new('Base 1', :c, 'H')],
+    ].each do |(input, output)|
+      assert_equal output, parse_note(input)
+    end
+  end
 end

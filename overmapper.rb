@@ -3,17 +3,18 @@
 #
 # See LICENSE.txt for licensing information.
 
-VERSION = '0.6'
+VERSION = '0.7'
 
 # Colors, RGBA hex (alpha works if you'd like transparent grid/origin)
 CBG     = 0x000000ff # black
 CFG     = 0xffffffff # white
 CGRID   = 0xff0000ff # red
 CORIGIN = 0x00ff00ff # green
+CNOTE   = 0x0000ffff # blue
 
 @conf = {
   mapx: 180, mapy: 180, level: 10, scale: 2, verbose: false,
-  grid: true, origin: true
+  grid: true, origin: true, notes: false
 }
 
 ## Guts
@@ -27,6 +28,9 @@ class Overview
     "Overview: #{width}x#{height} overmaps: #{seen.keys.length}"
   end
 end
+
+# Handy struct for keeping notes data
+Note = Struct.new(:text, :color, :symbol, :x, :y)
 
 # Print stuff only if verbose is on
 def verbose(&blk)
@@ -67,6 +71,27 @@ def parse_seen(path)
   parse_seen_data(data)
 end
 
+# Extract chosen level notes from a seen file
+def parse_notes(path)
+  notes = Array.new
+  File.open(path) do |fh|
+    fh.each_line do |line|
+      next unless line.match(/L #{@conf[:level]}/)
+      3.times { fh.readline }
+      break
+    end
+    fh.each_line do |line|
+      break unless m = line.match(/N (\d+) (\d+)/)
+      x, y = m.captures.map(&:to_i)
+      n = parse_note(fh.readline.chop)
+      n.x = x
+      n.y = y
+      notes.push(n)
+    end
+  end
+  notes
+end
+
 # Transform the raw seen data into an array of arrays of box coordinates for
 # drawing
 #
@@ -104,6 +129,21 @@ def parse_seen_data(data)
   end
 
   boxes
+end
+
+# Parse note
+def parse_note(data)
+  color = symbol = nil
+  arg_a, arg_b, text = data.match(/(.[:|;])?(.[:|;])?(.*)/).captures
+  [arg_a, arg_b].compact.each do |a|
+    if a.end_with? ';'
+      color = a[0].downcase.to_sym
+    else
+      symbol = a[0]
+    end
+  end
+
+  Note.new(text, color, symbol)
 end
 
 # Drawing loop helper
@@ -148,6 +188,17 @@ def draw_seen(image, overview)
   end
 end
 
+# Draw notes
+def draw_notes(image, overview)
+  draw_loop(overview) do |x, y, ix, iy|
+    verbose { "At overmap #{x}x#{y}..." }
+    next unless overview.seen.has_key? "#{x} #{y}"
+    parse_notes(overview.seen["#{x} #{y}"]).each do |note|
+      image.rect(*box_transform([note.x, note.y, note.x, note.y], ix, iy), CNOTE, CNOTE)
+    end
+  end
+end
+
 # Draw grid
 def draw_grid(image, overview)
   draw_loop(overview) do |x, y, ix, iy|
@@ -178,7 +229,8 @@ if __FILE__ == $0
       o.on('-l', '--level L', Integer, 'Set map layer (L)') {|a| @conf[:level] = a }
       o.on('-s', '--scale INT', Integer, 'Set pixel scale') {|a| @conf[:scale] = a }
       o.on('-g', '--[no-]grid', 'Draw grid') {|a| @conf[:grid] = a }
-      o.on('-o', '--[no-]origin', 'Draw origin') {|a| @conf[:origin] = a}
+      o.on('-o', '--[no-]origin', 'Draw origin') {|a| @conf[:origin] = a }
+      o.on('-n', '--[no-]notes', 'Draw notes') {|a| @conf[:notes] = a }
     end
     op.parse!
 
@@ -212,6 +264,7 @@ if __FILE__ == $0
     draw_seen(image, overview)
 
     verbose { 'Drawing additional stuff...' }
+    draw_notes(image, overview) if @conf[:notes]
     draw_grid(image, overview) if @conf[:grid]
     draw_origin(image, overview) if @conf[:origin]
 
