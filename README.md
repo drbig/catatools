@@ -6,14 +6,14 @@ Assorted [Cataclysm: Dark Days Ahead](http://en.cataclysmdda.com/) scripts.
 
 ### overmapper.rb
 
-Turn you save's seen data into a *big* image of visited areas.
+Turn your save's seen data into a *big* image of visited areas.
 
 *Requires*: [Ruby](https://www.ruby-lang.org/en/), [chunky_png](https://rubygems.org/gems/chunky_png)
 
 ```bash
 $ ./overmapper.rb
 Usage:  ./overmapper.rb [option...] save_path name.png
-        Version: 0.4
+        Version: 0.7
 
     -h, --help                       Display this message
     -v, --verbose                    Enable debug output
@@ -23,6 +23,7 @@ Usage:  ./overmapper.rb [option...] save_path name.png
     -s, --scale INT                  Set pixel scale
     -g, --[no-]grid                  Draw grid
     -o, --[no-]origin                Draw origin
+    -n, --[no-]notes                 Draw notes
 ```
 
 E.g.
