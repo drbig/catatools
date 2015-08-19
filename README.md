@@ -30,6 +30,36 @@ E.g.
 
 ![Penn Yan](http://i.imgur.com/1KTtSeN.png)
 
+### overmapper-2.rb
+
+Turn your save's overmaps data into *humongus* map view text/HTML files.
+Works only with saves since JSON overmap saving [became a thing](https://github.com/CleverRaven/Cataclysm-DDA/pull/12790).
+
+*Requires*: [Ruby](https://www.ruby-lang.org/en/), [oj](https://rubygems.org/gems/chunky_pn://rubygems.org/gems/oj)
+
+```bash
+$ ./overmapper-2.rb
+Usage:
+      ./overmapper-2.rb preprocess /path/to/cdda_dir
+
+      Convert CDDA overmap terrain data for later use.
+      File 'terrain.dat' will be created in current directory.
+      NOTE: You need to have that file for convert to work.
+
+      ./overmapper-2.rb convert [format] /path/to/save_dir
+
+      format: html, txt. default: html
+
+      This will try to convert overmap data to given format.
+      It will output to stdout so you better redirect it to a file.
+```
+
+E.g.
+
+![Debug 0.C](http://i.imgur.com/vGaJWnG.png)
+
+(at 25% zoom; HTML file for 3x4 overmaps world weights at ~ 5 MB)
+
 ## Contributing
 
 Follow the usual GitHub workflow:
