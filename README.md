@@ -30,12 +30,14 @@ E.g.
 
 ![Penn Yan](http://i.imgur.com/1KTtSeN.png)
 
-### overmapper-2.rb
+### overmapper-2.rb / overmapper-2.go
 
 Turn your save's overmaps data into *humongus* map view text/HTML files.
 Works only with saves since JSON overmap saving [became a thing](https://github.com/CleverRaven/Cataclysm-DDA/pull/12790).
 
-*Requires*: [Ruby](https://www.ruby-lang.org/en/), [oj](https://rubygems.org/gems/chunky_pn://rubygems.org/gems/oj)
+Ruby version *requires*: [Ruby](https://www.ruby-lang.org/en/), [oj](https://rubygems.org/gems/chunky_pn://rubygems.org/gems/oj)
+
+Go version *requires*: [Go](https://golang.org/dl/)
 
 ```bash
 $ ./overmapper-2.rb
