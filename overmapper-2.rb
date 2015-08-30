@@ -73,7 +73,8 @@ body { background: black; color: #aaaaaa; }
 .cl_white_white { background: white; }
 .cl_i_ltcyan { color: black; background: #e0ffff; }
 .cl_yellow_cyan { color: #ffff00; background: #00ffff; }
-</style></head><body><pre>"""
+</style><meta content='text/html; charset=utf-8' http-equiv='Content-Type' />
+</head><body><pre>"""
     HTML_END = """</pre></body></html>"""
     FORMATS = %i{txt html}
 
