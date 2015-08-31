@@ -4,6 +4,8 @@ Assorted [Cataclysm: Dark Days Ahead](http://en.cataclysmdda.com/) scripts.
 
 ## Current stuff
 
+Note on Go binaries: distributed outside the repo, checksums here for some notion "authenticity" (check the Rakefile).
+
 ### overmapper.rb
 
 Turn your save's seen data into a *big* image of visited areas.
