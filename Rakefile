@@ -21,6 +21,6 @@ namespace :build do
         end
       end
     end
-    sh "cd bin && md5sum * > checksums.md5"
+    sh "cd bin && rm -f checksums.md5 && md5sum * > checksums.md5"
   end
 end
