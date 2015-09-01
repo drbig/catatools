@@ -425,15 +425,19 @@ func runPrepare(root string) {
 	if err != nil {
 		die(err)
 	}
-	err = filepath.Walk(filepath.Join(root, "data", "json", "mapgen"), walkForJSON)
+	err = filepath.Walk(filepath.Join(root, "data", "json", "mapgen"), walkForMapgen)
+	if err != nil {
+		die(err)
+	}
+	err = filepath.Walk(filepath.Join(root, "data", "mods"), walkForMods)
 	if err != nil {
 		die(err)
 	}
 }
 
-// walkForJSON walks recursively looking for JSON files and tries to extract
+// walkForMapgen walks recursively looking for JSON files and tries to extract
 // overmap terrain entities form them.
-func walkForJSON(path string, info os.FileInfo, ierr error) (oerr error) {
+func walkForMapgen(path string, info os.FileInfo, ierr error) (oerr error) {
 	if ierr != nil {
 		return ierr
 	}
@@ -441,6 +445,21 @@ func walkForJSON(path string, info os.FileInfo, ierr error) (oerr error) {
 		return nil
 	}
 	if filepath.Ext(path) != ".json" {
+		return nil
+	}
+	return processTerrainData(path)
+}
+
+// walkForMods walks recursively looking for JSON files and tries to extract
+// overmap terrain entities form them.
+func walkForMods(path string, info os.FileInfo, ierr error) (oerr error) {
+	if ierr != nil {
+		return ierr
+	}
+	if info.IsDir() {
+		return nil
+	}
+	if filepath.Base(path) != "overmap_terrain.json" {
 		return nil
 	}
 	return processTerrainData(path)
