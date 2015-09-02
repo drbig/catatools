@@ -24,6 +24,9 @@ type Terrain struct {
 var (
 	flagVerbose bool // be verbose
 	flagPlain   bool // convert to plain-text
+	flagWidth   int  // overmap width
+	flagHeight  int  // overmap height
+	flagLayer   int  // overmap layer
 
 	termap = make(map[string]Terrain, 1024) // global overmap terrain map
 	lines  = map[int32]string{              // mappings for line glyphs
@@ -123,6 +126,9 @@ func init() {
 	}
 	flag.BoolVar(&flagVerbose, "v", false, "be verbose")
 	flag.BoolVar(&flagPlain, "p", false, "convert to plain-text")
+	flag.IntVar(&flagWidth, "ow", 180, "overmap width")
+	flag.IntVar(&flagHeight, "oh", 180, "overmap height")
+	flag.IntVar(&flagLayer, "ol", 10, "overmap layer")
 }
 
 func main() {
@@ -223,7 +229,7 @@ func runConvert(root string) {
 	}
 	rowLineBufs := make([][]bytes.Buffer, width)
 	for x := 0; x < width; x++ {
-		rowLineBufs[x] = make([]bytes.Buffer, 180) // height
+		rowLineBufs[x] = make([]bytes.Buffer, flagHeight)
 	}
 	if !flagPlain {
 		fmt.Println(htmlStart)
@@ -231,14 +237,14 @@ func runConvert(root string) {
 	for _, row := range maps {
 		for x, mapPath := range row {
 			if mapPath == "" {
-				for line := 0; line < 180; line++ {
-					for i := 0; i < 180; i++ {
+				for line := 0; line < flagHeight; line++ {
+					for i := 0; i < flagWidth; i++ {
 						rowLineBufs[x][line].Write([]byte(" "))
 					}
 				}
 				continue
 			}
-			data, err := getLayer(10, mapPath)
+			data, err := getLayer(flagLayer, mapPath)
 			if err != nil {
 				die(err)
 			}
@@ -254,7 +260,7 @@ func runConvert(root string) {
 					}
 				}
 				for e.Len > 0 {
-					lineLeft := 180 - pos // width
+					lineLeft := flagWidth - pos
 					var howMany int
 					if lineLeft < e.Len {
 						howMany = lineLeft
@@ -274,14 +280,14 @@ func runConvert(root string) {
 					}
 					pos += howMany
 					e.Len -= howMany
-					if pos == 180 {
+					if pos == flagWidth {
 						pos = 0
 						line++
 					}
 				}
 			}
 		}
-		for line := 0; line < 180; line++ {
+		for line := 0; line < flagHeight; line++ {
 			for _, bufs := range rowLineBufs {
 				bufs[line].WriteTo(os.Stdout)
 				bufs[line].Reset()
