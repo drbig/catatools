@@ -42,20 +42,35 @@ Go version *requires*: [Go](https://golang.org/dl/). The Go version is the one t
 Ruby version *requires*: [Ruby](https://www.ruby-lang.org/en/), [oj](https://rubygems.org/gems/chunky_pn://rubygems.org/gems/oj)
 
 ```bash
-$ ./overmapper-2.rb
-Usage:
-      ./overmapper-2.rb preprocess /path/to/cdda_dir
+Usage: ./overmapper-2 [options...] <command> <path>
 
-      Convert CDDA overmap terrain data for later use.
-      File 'terrain.dat' will be created in current directory.
-      NOTE: You need to have that file for convert to work.
+        Options:
 
-      ./overmapper-2.rb convert [format] /path/to/save_dir
+  -oh int
+        overmap height (default 180)
+  -ol int
+        overmap layer (default 10)
+  -ow int
+        overmap width (default 180)
+  -p    convert to plain-text
+  -v    be verbose
 
-      format: html, txt. default: html
+        Commands:
 
-      This will try to convert overmap data to given format.
-      It will output to stdout so you better redirect it to a file.
+        prepare /path/to/cdda
+
+        Convert C:DDA overmap terrain data to internal format.
+        File 'terrain.dat' will be created in current directory.
+        NOTE: You need to have the above file for convert to work.
+              You should also re-run it periodically to update the data
+              (e.g. if you see missing tile messages when converting).
+
+        convert /path/to/save > /path/to/output.file
+
+        This will try to convert your save data to HTML by default.
+        It will output to stdout so you most likely want to redirect iy
+        to a file ("> test.html"). You can change the format using the "-p"
+        option (for plain text).
 ```
 
 E.g.
