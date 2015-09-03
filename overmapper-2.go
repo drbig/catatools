@@ -116,12 +116,12 @@ func init() {
 	      You should also re-run it periodically to update the data
 	      (e.g. if you see missing tile messages when converting).
 
-	convert /path/to/save
+	convert /path/to/save > /path/to/output.file
 
-	This will try to convert your save data to HTML by default, you can change
-	the format using the '-p' option. It will output to stdout so you most
-	likely want to redirect it to a file.
-`)
+	This will try to convert your save data to HTML by default.
+	It will output to stdout so you most likely want to redirect it
+	to a file ("> test.html"). You can change the format using the "-p"
+	option (for plain text).`)
 		os.Exit(1)
 	}
 	flag.BoolVar(&flagVerbose, "v", false, "be verbose")
