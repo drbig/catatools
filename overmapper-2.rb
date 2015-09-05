@@ -94,7 +94,8 @@ body { background: black; color: #aaaaaa; }
 
     def preprocess(cdda_path)
       in_paths = ([File.join(cdda_path, 'data/json/overmap_terrain.json')] + \
-                  Dir.glob(File.join(cdda_path, 'data/json/mapgen/*.json')))
+                  Dir.glob(File.join(cdda_path, 'data/json/mapgen/*.json')) + \
+                  Dir.glob(File.join(cdda_path, 'data/mods/**/overmap_terrain.json')))
 
       log :debug, 'Preprocessing terrain data'
       @data = Hash.new
