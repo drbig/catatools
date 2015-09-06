@@ -21,6 +21,30 @@ type Terrain struct {
 	Color   string
 }
 
+// MapStats holds dimensional data over given set of maps.
+type MapStats struct {
+	MinX, MaxX    int
+	MinY, MaxY    int
+	Width, Height int
+	Seen          int
+	Area          int
+	Coverage      float64
+}
+
+// Recalc recalculates Width and Height based on the dimensions.
+func (s *MapStats) Recalc() {
+	s.Width = -s.MinX + 1 + s.MaxX
+	s.Height = -s.MinY + 1 + s.MaxY
+	s.Area = s.Width * s.Height
+	s.Coverage = (float64(s.Seen) / float64(s.Area)) * 100.0
+}
+
+// String retruns a string representation of the map statistics.
+func (s *MapStats) String() string {
+	return fmt.Sprintf("Maps range from %dx%d to %dx%d for an area of %dx%d with %d/%d - %.2f visited",
+		s.MinX, s.MinY, s.MaxX, s.MaxY, s.Width, s.Height, s.Seen, s.Area, s.Coverage)
+}
+
 var (
 	flagVerbose bool // be verbose
 	flagPlain   bool // convert to plain-text
@@ -223,12 +247,12 @@ func getLayer(which int, path string) (layer []oMapElem, err error) {
 // runConvert is the main entry point for conversion.
 // It will die on fatal errors.
 func runConvert(root string) {
-	maps, width, err := getMaps(root)
+	maps, stats, err := getMaps(root)
 	if err != nil {
 		die(err)
 	}
-	rowLineBufs := make([][]bytes.Buffer, width)
-	for x := 0; x < width; x++ {
+	rowLineBufs := make([][]bytes.Buffer, stats.Width)
+	for x := 0; x < stats.Width; x++ {
 		rowLineBufs[x] = make([]bytes.Buffer, flagHeight)
 	}
 	if !flagPlain {
@@ -347,14 +371,12 @@ func getTer(id string) (color, symbol string) {
 // getMaps looks over a save directory and composes an array of arrays
 // of maps for processing. The returned array has dimensions of the extent
 // of the overmaps saved, with empty overmaps being empty strings.
-// It also returns the width in overmaps as it's needed to allocate output
-// buffers later.
-func getMaps(root string) (maps [][]string, width int, err error) {
+// It also returns overall dimensional stats.
+func getMaps(root string) (maps [][]string, stats *MapStats, err error) {
 	type coord struct {
 		x, y int
 	}
-	var min_x, max_x int
-	var min_y, max_y int
+	stats = &MapStats{}
 	seen := make(map[coord]string)
 	err = filepath.Walk(root,
 		func(path string, info os.FileInfo, ierr error) (oerr error) {
@@ -385,32 +407,31 @@ func getMaps(root string) (maps [][]string, width int, err error) {
 				return
 			}
 			seen[coord{x, y}] = path
-			if x < min_x {
-				min_x = x
+			stats.Seen++
+			if x < stats.MinX {
+				stats.MinX = x
 			}
-			if x > max_x {
-				max_x = x
+			if x > stats.MaxX {
+				stats.MaxX = x
 			}
-			if y < min_y {
-				min_y = y
+			if y < stats.MinY {
+				stats.MinY = y
 			}
-			if y > max_y {
-				max_y = y
+			if y > stats.MaxY {
+				stats.MaxY = y
 			}
 			return nil
 		})
-	width = -min_x + 1 + max_x
-	height := -min_y + 1 + max_y
+	stats.Recalc()
 	if flagVerbose {
-		fmt.Fprintf(os.Stderr, "Maps range from %dx%d to %dx%d for an area of %dx%d\n",
-			min_x, min_y, max_x, max_y, width, height)
+		fmt.Fprintln(os.Stderr, stats)
 	}
-	maps = make([][]string, height)
-	for y := 0; y < height; y++ {
-		maps[y] = make([]string, width)
-		for x := 0; x < width; x++ {
-			rx := min_x + x
-			ry := min_y + y
+	maps = make([][]string, stats.Height)
+	for y := 0; y < stats.Height; y++ {
+		maps[y] = make([]string, stats.Width)
+		for x := 0; x < stats.Width; x++ {
+			rx := stats.MinX + x
+			ry := stats.MinY + y
 			if path, ok := seen[coord{rx, ry}]; ok {
 				maps[y][x] = path
 			}
