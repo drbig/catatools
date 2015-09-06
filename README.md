@@ -46,6 +46,7 @@ Usage: ./overmapper-2 [options...] <command> <path>
 
         Options:
 
+  -a    print coordinate axes
   -oh int
         overmap height (default 180)
   -ol int
