@@ -48,6 +48,7 @@ func (s *MapStats) String() string {
 var (
 	flagVerbose bool // be verbose
 	flagPlain   bool // convert to plain-text
+	flagAxes    bool // print coordinate axes
 	flagWidth   int  // overmap width
 	flagHeight  int  // overmap height
 	flagLayer   int  // overmap layer
@@ -150,6 +151,7 @@ func init() {
 	}
 	flag.BoolVar(&flagVerbose, "v", false, "be verbose")
 	flag.BoolVar(&flagPlain, "p", false, "convert to plain-text")
+	flag.BoolVar(&flagAxes, "a", false, "print coordinate axes")
 	flag.IntVar(&flagWidth, "ow", 180, "overmap width")
 	flag.IntVar(&flagHeight, "oh", 180, "overmap height")
 	flag.IntVar(&flagLayer, "ol", 10, "overmap layer")
@@ -258,7 +260,7 @@ func runConvert(root string) {
 	if !flagPlain {
 		fmt.Println(htmlStart)
 	}
-	for _, row := range maps {
+	for y, row := range maps {
 		for x, mapPath := range row {
 			if mapPath == "" {
 				for line := 0; line < flagHeight; line++ {
@@ -311,7 +313,27 @@ func runConvert(root string) {
 				}
 			}
 		}
+		if flagAxes && y == 0 {
+			fmt.Print("______")
+			for x := 0; x < stats.Width; x++ {
+				marker := fmt.Sprintf("| %d", stats.MinX+x)
+				fmt.Print(marker)
+				for c := 0; c < (flagWidth - len(marker)); c++ {
+					fmt.Print(" ")
+				}
+			}
+			fmt.Println()
+		}
 		for line := 0; line < flagHeight; line++ {
+			if flagAxes {
+				if line == 0 {
+					fmt.Printf("%5d ", stats.MinY+y)
+				} else if line == (flagHeight - 1) {
+					fmt.Print("______")
+				} else {
+					fmt.Print("      ")
+				}
+			}
 			for _, bufs := range rowLineBufs {
 				bufs[line].WriteTo(os.Stdout)
 				bufs[line].Reset()
